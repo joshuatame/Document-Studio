@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { ErrorState } from "@/components/document-studio/error-state";
@@ -8,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { getSettings, isUnauthorizedError, updateSettings } from "@/lib/api";
+import { redirectToAccount } from "@/lib/account";
 import type { DocumentStudioSettings } from "@/types/document-studio";
 
 interface SettingsForm {
@@ -16,7 +16,6 @@ interface SettingsForm {
 }
 
 export default function SettingsPage() {
-  const navigate = useNavigate();
   const [settings, setSettings] = useState<DocumentStudioSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -36,7 +35,7 @@ export default function SettingsPage() {
       });
     } catch (err) {
       if (isUnauthorizedError(err)) {
-        navigate("/login", { replace: true });
+        redirectToAccount("login");
         return;
       }
       setError(err instanceof Error ? err.message : "Failed to load settings");

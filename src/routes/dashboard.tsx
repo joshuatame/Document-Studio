@@ -8,6 +8,7 @@ import { PageSkeleton } from "@/components/document-studio/loading-skeleton";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getDashboard, isUnauthorizedError } from "@/lib/api";
+import { redirectToAccount } from "@/lib/account";
 import { formatDate, getDocumentRoute } from "@/lib/utils";
 import type { DocumentStudioDashboard } from "@/types/document-studio";
 
@@ -25,7 +26,7 @@ export default function DashboardPage() {
       setData(dashboard);
     } catch (err) {
       if (isUnauthorizedError(err)) {
-        navigate("/login", { replace: true });
+        redirectToAccount("login");
         return;
       }
       setError(err instanceof Error ? err.message : "Failed to load dashboard");

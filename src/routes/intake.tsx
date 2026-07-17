@@ -16,6 +16,7 @@ import {
   isUnauthorizedError,
   saveDocumentIntake,
 } from "@/lib/api";
+import { redirectToAccount } from "@/lib/account";
 import {
   getLocalDocumentType,
   getLocalIntakeQuestions,
@@ -132,7 +133,7 @@ export default function IntakePage() {
         setQuestions(docQuestions);
       } catch (err) {
         if (isUnauthorizedError(err)) {
-          navigate("/login", { replace: true });
+          redirectToAccount("login");
           return;
         }
         setError(err instanceof Error ? err.message : "Failed to load intake");
@@ -160,7 +161,7 @@ export default function IntakePage() {
       navigate(`/review/${documentId}`);
     } catch (err) {
       if (isUnauthorizedError(err)) {
-        navigate("/login", { replace: true });
+        redirectToAccount("login");
         return;
       }
       toast.error(err instanceof Error ? err.message : "Failed to save intake");

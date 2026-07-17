@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { TemplateTypeCard } from "@/components/document-studio/template-type-card";
 import { ErrorState } from "@/components/document-studio/error-state";
 import { PageSkeleton } from "@/components/document-studio/loading-skeleton";
 import { getDocumentTypes, isUnauthorizedError } from "@/lib/api";
+import { redirectToAccount } from "@/lib/account";
 import { LOCAL_CATALOG } from "@/lib/catalog";
 import type { DocumentTypeSummary } from "@/types/document-studio";
 
 export default function SelectPage() {
-  const navigate = useNavigate();
   const [types, setTypes] = useState<DocumentTypeSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -28,7 +27,7 @@ export default function SelectPage() {
       }
     } catch (err) {
       if (isUnauthorizedError(err)) {
-        navigate("/login", { replace: true });
+        redirectToAccount("login");
         return;
       }
       setTypes(LOCAL_CATALOG);

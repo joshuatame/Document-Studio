@@ -6,7 +6,8 @@ import { ErrorState } from "@/components/document-studio/error-state";
 import { LoadingSkeleton } from "@/components/document-studio/loading-skeleton";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { getCompletedDocument, isUnauthorizedError } from "@/lib/api";
+import { getCompletedDocument, isUnauthorizedError, saveDocumentDraftContent } from "@/lib/api";
+import { redirectToAccount } from "@/lib/account";
 import type { CompletedDocumentResponse } from "@/types/document-studio";
 
 export default function DownloadPage() {
@@ -16,6 +17,8 @@ export default function DownloadPage() {
     null
   );
   const [loading, setLoading] = useState(true);
+  const [previewText, setPreviewText] = useState("");
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function loadDocument() {
@@ -24,9 +27,10 @@ export default function DownloadPage() {
     try {
       const data = await getCompletedDocument(documentId);
       setDocument(data);
+      setPreviewText(data.previewText ?? "");
     } catch (err) {
       if (isUnauthorizedError(err)) {
-        navigate("/login", { replace: true });
+        redirectToAccount("login");
         return;
       }
       setError(err instanceof Error ? err.message : "Failed to load document");
@@ -53,6 +57,17 @@ export default function DownloadPage() {
   if (error) return <ErrorState message={error} onRetry={loadDocument} />;
   if (!document) return null;
 
+  async function savePreview() {
+    setSaving(true);
+    try {
+      const updated = await saveDocumentDraftContent(documentId, previewText);
+      setDocument(updated);
+      setPreviewText(updated.previewText ?? "");
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4">
@@ -67,10 +82,21 @@ export default function DownloadPage() {
 
       {document.previewText && (
         <Card>
-          <h2 className="mb-3 text-sm font-medium text-graphite/70">Preview</h2>
-          <p className="whitespace-pre-wrap text-sm leading-relaxed text-navy">
-            {document.previewText}
-          </p>
+          <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-sm font-medium text-graphite/70">Editable preview</h2>
+              <p className="text-xs text-graphite/60">Make final wording changes before downloading the produced PDF.</p>
+            </div>
+            <Button variant="outline" onClick={savePreview} loading={saving}>
+              Save preview edits
+            </Button>
+          </div>
+          <textarea
+            value={previewText}
+            onChange={(event) => setPreviewText(event.target.value)}
+            rows={18}
+            className="w-full rounded-lg border border-steel bg-white p-4 text-sm leading-relaxed text-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-electric"
+          />
         </Card>
       )}
 

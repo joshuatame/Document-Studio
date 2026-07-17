@@ -9,6 +9,7 @@ import {
   isUnauthorizedError,
   triggerGeneration,
 } from "@/lib/api";
+import { redirectToAccount } from "@/lib/account";
 import type { DocumentStudioGenerationStatus } from "@/types/document-studio";
 
 const POLL_INTERVAL_MS = 3000;
@@ -48,7 +49,7 @@ export default function GeneratingPage() {
     } catch (err) {
       if (isUnauthorizedError(err)) {
         stopPolling();
-        navigate("/login", { replace: true });
+        redirectToAccount("login");
         return;
       }
       // Keep polling on transient network errors
@@ -80,7 +81,7 @@ export default function GeneratingPage() {
       }, POLL_INTERVAL_MS);
     } catch (err) {
       if (isUnauthorizedError(err)) {
-        navigate("/login", { replace: true });
+        redirectToAccount("login");
         return;
       }
       setError(err instanceof Error ? err.message : "Failed to start generation");

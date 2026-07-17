@@ -6,6 +6,7 @@ import { ErrorState } from "@/components/document-studio/error-state";
 import { PageSkeleton } from "@/components/document-studio/loading-skeleton";
 import { Card } from "@/components/ui/card";
 import { getDocumentHistory, isUnauthorizedError } from "@/lib/api";
+import { redirectToAccount } from "@/lib/account";
 import { formatDate, getDocumentRoute } from "@/lib/utils";
 import type { DocumentHistoryResponse, DocumentStudioDocument } from "@/types/document-studio";
 
@@ -23,7 +24,7 @@ export default function HistoryPage() {
       setHistory(data);
     } catch (err) {
       if (isUnauthorizedError(err)) {
-        navigate("/login", { replace: true });
+        redirectToAccount("login");
         return;
       }
       setError(err instanceof Error ? err.message : "Failed to load history");

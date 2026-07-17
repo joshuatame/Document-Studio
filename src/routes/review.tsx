@@ -7,6 +7,7 @@ import { LoadingSkeleton } from "@/components/document-studio/loading-skeleton";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { getDocumentReview, isUnauthorizedError } from "@/lib/api";
+import { redirectToAccount } from "@/lib/account";
 import { formatCurrency } from "@/lib/utils";
 import type { DocumentStudioReview } from "@/types/document-studio";
 
@@ -25,7 +26,7 @@ export default function ReviewPage() {
       setReview(data);
     } catch (err) {
       if (isUnauthorizedError(err)) {
-        navigate("/login", { replace: true });
+        redirectToAccount("login");
         return;
       }
       setError(err instanceof Error ? err.message : "Failed to load review");

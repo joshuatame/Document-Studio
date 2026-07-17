@@ -10,6 +10,7 @@ import {
   getPaymentStatus,
   isUnauthorizedError,
 } from "@/lib/api";
+import { redirectToAccount } from "@/lib/account";
 import { formatCurrency } from "@/lib/utils";
 import type { CheckoutResponse } from "@/types/document-studio";
 
@@ -34,7 +35,7 @@ export default function PaymentPage() {
       }
     } catch (err) {
       if (isUnauthorizedError(err)) {
-        navigate("/login", { replace: true });
+        redirectToAccount("login");
         return;
       }
       setError(err instanceof Error ? err.message : "Failed to load payment");
