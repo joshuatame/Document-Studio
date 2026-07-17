@@ -115,7 +115,7 @@ export default function GeneratingPage() {
       <div className="text-center">
         <h1 className="text-2xl font-bold text-navy">Generating your document</h1>
         <p className="mt-1 text-graphite/80">
-          Please wait while the backend processes your document.
+          Please wait while Document Studio prepares your draft.
         </p>
       </div>
 

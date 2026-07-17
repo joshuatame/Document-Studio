@@ -60,7 +60,7 @@ export default function ReviewPage() {
         <div>
           <h1 className="text-2xl font-bold text-navy">Review your answers</h1>
           <p className="mt-1 text-graphite/80">
-            Confirm your intake before proceeding to payment.
+            Confirm your intake before generating your draft.
           </p>
         </div>
         <DocumentStatusBadge status={review.status} />
@@ -112,8 +112,8 @@ export default function ReviewPage() {
           <ArrowLeft className="h-4 w-4" />
           Back
         </Button>
-        <Button onClick={() => navigate(`/payment/${documentId}`)}>
-          Continue to payment
+        <Button onClick={() => navigate(`/generating/${documentId}`)}>
+          Generate document
         </Button>
       </div>
     </div>

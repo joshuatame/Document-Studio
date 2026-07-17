@@ -190,7 +190,7 @@ export default function IntakePage() {
         <h1 className="text-2xl font-bold text-navy">{title}</h1>
         <p className="mt-1 text-graphite/80">
           Complete the guided intake below. Your answers will be used by the
-          backend to generate your document.
+          studio to generate your document draft.
         </p>
       </div>
 

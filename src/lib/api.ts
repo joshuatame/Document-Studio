@@ -1,4 +1,21 @@
 import { getAccessToken } from "@/lib/auth";
+import {
+  localCreateCheckout,
+  localCreateDocument,
+  localDownloadDocumentDocx,
+  localDownloadDocumentPdf,
+  localGetCompletedDocument,
+  localGetDashboard,
+  localGetDocument,
+  localGetDocumentHistory,
+  localGetDocumentReview,
+  localGetDocumentTypes,
+  localGetGenerationStatus,
+  localGetSettings,
+  localSaveDocumentIntake,
+  localTriggerGeneration,
+  localUpdateSettings,
+} from "@/lib/local-studio";
 import type {
   CheckoutResponse,
   CompletedDocumentResponse,
@@ -16,6 +33,8 @@ import type {
 const API_BASE = import.meta.env.VITE_TAME_API_URL;
 const APP_SLUG = import.meta.env.VITE_APP_SLUG || "document-studio";
 const NAMESPACE = `${API_BASE}/document-studio`;
+const USE_LOCAL_STUDIO =
+  import.meta.env.VITE_DOCUMENT_STUDIO_LOCAL_ONLY !== "false" || !API_BASE;
 
 export class ApiClientError extends Error {
   status: number;
@@ -101,16 +120,19 @@ async function downloadRequest(path: string): Promise<Blob> {
 }
 
 export async function getDocumentTypes(): Promise<DocumentTypeSummary[]> {
+  if (USE_LOCAL_STUDIO) return localGetDocumentTypes();
   return request<DocumentTypeSummary[]>("/types");
 }
 
 export async function getDashboard(): Promise<DocumentStudioDashboard> {
+  if (USE_LOCAL_STUDIO) return localGetDashboard();
   return request<DocumentStudioDashboard>("/dashboard");
 }
 
 export async function createDocument(
   documentType: string
 ): Promise<CreateDocumentResponse> {
+  if (USE_LOCAL_STUDIO) return localCreateDocument(documentType);
   return request<CreateDocumentResponse>("/documents", {
     method: "POST",
     body: JSON.stringify({ documentType }),
@@ -121,6 +143,7 @@ export async function saveDocumentIntake(
   documentId: string,
   answers: DocumentStudioAnswer[]
 ): Promise<DocumentStudioDocument> {
+  if (USE_LOCAL_STUDIO) return localSaveDocumentIntake(documentId, answers);
   return request<DocumentStudioDocument>(`/documents/${documentId}/intake`, {
     method: "PATCH",
     body: JSON.stringify({ answers }),
@@ -130,24 +153,28 @@ export async function saveDocumentIntake(
 export async function getDocument(
   documentId: string
 ): Promise<DocumentStudioDocument> {
+  if (USE_LOCAL_STUDIO) return localGetDocument(documentId);
   return request<DocumentStudioDocument>(`/documents/${documentId}`);
 }
 
 export async function getDocumentDraft(
   documentId: string
 ): Promise<DocumentStudioDocument> {
+  if (USE_LOCAL_STUDIO) return localGetDocument(documentId);
   return request<DocumentStudioDocument>(`/documents/${documentId}/draft`);
 }
 
 export async function getDocumentReview(
   documentId: string
 ): Promise<DocumentStudioReview> {
+  if (USE_LOCAL_STUDIO) return localGetDocumentReview(documentId);
   return request<DocumentStudioReview>(`/documents/${documentId}/review`);
 }
 
 export async function createCheckout(
   documentId: string
 ): Promise<CheckoutResponse> {
+  if (USE_LOCAL_STUDIO) return localCreateCheckout(documentId);
   return request<CheckoutResponse>(`/documents/${documentId}/checkout`, {
     method: "POST",
   });
@@ -156,12 +183,14 @@ export async function createCheckout(
 export async function getPaymentStatus(
   documentId: string
 ): Promise<CheckoutResponse> {
+  if (USE_LOCAL_STUDIO) return localCreateCheckout(documentId);
   return request<CheckoutResponse>(`/documents/${documentId}/payment-status`);
 }
 
 export async function triggerGeneration(
   documentId: string
 ): Promise<GenerationStatusResponse> {
+  if (USE_LOCAL_STUDIO) return localTriggerGeneration(documentId);
   return request<GenerationStatusResponse>(
     `/documents/${documentId}/generate`,
     { method: "POST" }
@@ -171,6 +200,7 @@ export async function triggerGeneration(
 export async function getGenerationStatus(
   documentId: string
 ): Promise<GenerationStatusResponse> {
+  if (USE_LOCAL_STUDIO) return localGetGenerationStatus();
   return request<GenerationStatusResponse>(
     `/documents/${documentId}/generation-status`
   );
@@ -179,6 +209,7 @@ export async function getGenerationStatus(
 export async function getCompletedDocument(
   documentId: string
 ): Promise<CompletedDocumentResponse> {
+  if (USE_LOCAL_STUDIO) return localGetCompletedDocument(documentId);
   return request<CompletedDocumentResponse>(
     `/documents/${documentId}/download`
   );
@@ -187,34 +218,39 @@ export async function getCompletedDocument(
 export async function downloadDocumentPdf(
   documentId: string
 ): Promise<Blob> {
+  if (USE_LOCAL_STUDIO) return localDownloadDocumentPdf(documentId);
   return downloadRequest(`/documents/${documentId}/download/pdf`);
 }
 
 export async function downloadDocumentDocx(
   documentId: string
 ): Promise<Blob> {
+  if (USE_LOCAL_STUDIO) return localDownloadDocumentDocx(documentId);
   return downloadRequest(`/documents/${documentId}/download/docx`);
 }
 
 export async function getDocumentHistory(): Promise<DocumentHistoryResponse> {
+  if (USE_LOCAL_STUDIO) return localGetDocumentHistory();
   return request<DocumentHistoryResponse>("/history");
 }
 
 export async function getSettings(): Promise<DocumentStudioSettings> {
+  if (USE_LOCAL_STUDIO) return localGetSettings();
   return request<DocumentStudioSettings>("/settings");
 }
 
 export async function updateSettings(
   payload: Partial<DocumentStudioSettings>
 ): Promise<DocumentStudioSettings> {
+  if (USE_LOCAL_STUDIO) return localUpdateSettings(payload);
   return request<DocumentStudioSettings>("/settings", {
     method: "PATCH",
     body: JSON.stringify(payload),
   });
 }
 
-export function isUnauthorizedError(error: unknown): boolean {
-  return error instanceof ApiClientError && error.status === 401;
+export function isUnauthorizedError(_error: unknown): boolean {
+  return false;
 }
 
 export function isNotFoundError(error: unknown): boolean {

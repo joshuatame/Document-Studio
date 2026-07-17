@@ -4,10 +4,8 @@ import {
   FilePlus,
   History,
   LayoutDashboard,
-  LogOut,
   Settings,
 } from "lucide-react";
-import { clearAccessToken } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -22,11 +20,6 @@ interface SidebarProps {
 }
 
 export function Sidebar({ onNavigate }: SidebarProps) {
-  function handleSignOut() {
-    clearAccessToken();
-    window.location.href = `${import.meta.env.BASE_URL}login`;
-  }
-
   return (
     <aside className="flex h-full w-64 flex-col border-r border-steel/60 bg-white">
       <div className="border-b border-steel/60 px-6 py-5">
@@ -73,14 +66,6 @@ export function Sidebar({ onNavigate }: SidebarProps) {
           <ExternalLink className="h-4 w-4" />
           tame-dynamics.com
         </a>
-        <button
-          type="button"
-          onClick={handleSignOut}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-graphite transition-colors hover:bg-error/10 hover:text-error"
-        >
-          <LogOut className="h-4 w-4" />
-          Sign out
-        </button>
       </div>
     </aside>
   );
