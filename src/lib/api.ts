@@ -16,13 +16,23 @@ const API_BASE = (import.meta.env.VITE_TAME_API_URL || "/api").replace(/\/$/, ""
 const APP_SLUG = import.meta.env.VITE_APP_SLUG || "document-studio";
 const NAMESPACE = `${API_BASE}/document-studio`;
 const SESSION_STORAGE_KEY = "tame:document-studio:session";
+let inMemorySessionId: string | undefined;
+
+function createSessionId(): string {
+  return `${crypto.randomUUID()}${crypto.randomUUID()}`.replace(/-/g, "");
+}
 
 function getSessionId(): string {
-  const existing = localStorage.getItem(SESSION_STORAGE_KEY);
-  if (existing) return existing;
-  const sessionId = `${crypto.randomUUID()}${crypto.randomUUID()}`.replace(/-/g, "");
-  localStorage.setItem(SESSION_STORAGE_KEY, sessionId);
-  return sessionId;
+  try {
+    const existing = localStorage.getItem(SESSION_STORAGE_KEY);
+    if (existing) return existing;
+    inMemorySessionId ??= createSessionId();
+    localStorage.setItem(SESSION_STORAGE_KEY, inMemorySessionId);
+    return inMemorySessionId;
+  } catch {
+    inMemorySessionId ??= createSessionId();
+    return inMemorySessionId;
+  }
 }
 
 export class ApiClientError extends Error {
