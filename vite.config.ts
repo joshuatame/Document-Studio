@@ -4,7 +4,7 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
-  const base = env.VITE_APP_BASE_PATH || "/document-studio/";
+  const base = env.VITE_APP_BASE_PATH || "/clients/document-studio/";
 
   return {
     plugins: [react()],

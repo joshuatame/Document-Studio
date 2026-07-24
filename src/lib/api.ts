@@ -15,6 +15,15 @@ import type {
 const API_BASE = (import.meta.env.VITE_TAME_API_URL || "/api").replace(/\/$/, "");
 const APP_SLUG = import.meta.env.VITE_APP_SLUG || "document-studio";
 const NAMESPACE = `${API_BASE}/document-studio`;
+const SESSION_STORAGE_KEY = "tame:document-studio:session";
+
+function getSessionId(): string {
+  const existing = localStorage.getItem(SESSION_STORAGE_KEY);
+  if (existing) return existing;
+  const sessionId = `${crypto.randomUUID()}${crypto.randomUUID()}`.replace(/-/g, "");
+  localStorage.setItem(SESSION_STORAGE_KEY, sessionId);
+  return sessionId;
+}
 
 export class ApiClientError extends Error {
   status: number;
@@ -43,6 +52,7 @@ async function parseError(response: Response): Promise<string> {
 function buildHeaders(includeJson = true): HeadersInit {
   const headers: Record<string, string> = {
     "X-Tame-App-Slug": APP_SLUG,
+    "X-Document-Studio-Session": getSessionId(),
   };
 
   if (includeJson) {
