@@ -13,7 +13,7 @@ import SettingsPage from "@/routes/settings";
 import NotFoundPage from "@/routes/not-found";
 
 const basename =
-  import.meta.env.VITE_APP_BASE_PATH || "/document-studio";
+  import.meta.env.VITE_APP_BASE_PATH || "/clients/document-studio";
 
 export default function App() {
   return (
