@@ -9,9 +9,11 @@ import {
   Mail,
   Send,
   Shield,
+  ShieldCheck,
   UserCheck,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { formatCurrency, formatDuration } from "@/lib/utils";
 import type { DocumentTypeSummary } from "@/types/document-studio";
@@ -35,9 +37,22 @@ interface TemplateTypeCardProps {
 
 export function TemplateTypeCard({ documentType }: TemplateTypeCardProps) {
   const Icon = iconMap[documentType.icon] ?? FileText;
+  const isProduction = documentType.productionStatus === "production";
 
   return (
     <Card className="flex h-full flex-col transition-shadow hover:shadow-elevated">
+      <div className="mb-3 flex flex-wrap gap-2">
+        {isProduction && <Badge variant="success">Production</Badge>}
+        {documentType.productionStatus === "draft" && (
+          <Badge variant="warning">Draft</Badge>
+        )}
+        {documentType.requiresLegalReview && (
+          <Badge variant="indigo">
+            <ShieldCheck className="mr-1 h-3 w-3" />
+            Review recommended
+          </Badge>
+        )}
+      </div>
       <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-electric/10">
         <Icon className="h-5 w-5 text-electric" />
       </div>
@@ -47,10 +62,17 @@ export function TemplateTypeCard({ documentType }: TemplateTypeCardProps) {
       <p className="mb-4 flex-1 text-sm leading-relaxed text-graphite/80">
         {documentType.description}
       </p>
+      {documentType.requiresLegalReview && (
+        <p className="mb-3 text-xs text-indigo">
+          Review recommended before use
+        </p>
+      )}
       <div className="mb-4 flex items-center justify-between text-sm text-graphite">
         <span>{formatDuration(documentType.estimatedMinutes)}</span>
         <span className="font-semibold text-navy">
-          {formatCurrency(documentType.priceCents, documentType.currency)}
+          {documentType.isFree
+            ? "Free"
+            : formatCurrency(documentType.priceCents, documentType.currency)}
         </span>
       </div>
       <Link

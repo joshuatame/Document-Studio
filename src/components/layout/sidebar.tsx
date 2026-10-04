@@ -6,8 +6,9 @@ import {
   LayoutDashboard,
   LogOut,
   Settings,
+  Shield,
 } from "lucide-react";
-import { clearAccessToken } from "@/lib/auth";
+import { getUser, isAdminUser, logoutAndRedirect } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -22,9 +23,11 @@ interface SidebarProps {
 }
 
 export function Sidebar({ onNavigate }: SidebarProps) {
+  const user = getUser();
+  const showAdmin = isAdminUser(user);
+
   function handleSignOut() {
-    clearAccessToken();
-    window.location.href = `${import.meta.env.BASE_URL}login`;
+    logoutAndRedirect();
   }
 
   return (
@@ -61,9 +64,36 @@ export function Sidebar({ onNavigate }: SidebarProps) {
             {item.label}
           </NavLink>
         ))}
+        {showAdmin && (
+          <NavLink
+            to="/admin"
+            onClick={onNavigate}
+            className={({ isActive }) =>
+              cn(
+                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                isActive
+                  ? "bg-indigo/10 text-indigo"
+                  : "text-graphite hover:bg-steel/40 hover:text-navy"
+              )
+            }
+          >
+            <Shield className="h-4 w-4" />
+            Admin
+          </NavLink>
+        )}
       </nav>
 
       <div className="space-y-1 border-t border-steel/60 px-3 py-4">
+        {(user?.displayName || user?.email) && (
+          <div className="px-3 py-2">
+            <p className="truncate text-sm font-medium text-navy">
+              {user.displayName || user.email}
+            </p>
+            {user.displayName && user.email && (
+              <p className="truncate text-xs text-graphite/70">{user.email}</p>
+            )}
+          </div>
+        )}
         <a
           href="https://tame-dynamics.com"
           target="_blank"

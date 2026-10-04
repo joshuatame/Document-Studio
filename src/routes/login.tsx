@@ -1,27 +1,49 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { setAccessToken } from "@/lib/auth";
+import { ApiClientError, login } from "@/lib/api";
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const [token, setToken] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!token.trim()) {
-      toast.error("Please enter an access token");
+    setError(null);
+
+    if (!email.trim() || !password) {
+      setError("Please enter your email and password");
       return;
     }
+
     setLoading(true);
-    setAccessToken(token);
-    toast.success("Access token saved");
-    navigate("/", { replace: true });
+    try {
+      await login({
+        email: email.trim(),
+        password,
+        appSlug: "document-studio",
+      });
+      toast.success("Signed in successfully");
+      navigate("/", { replace: true });
+    } catch (err) {
+      const message =
+        err instanceof ApiClientError
+          ? err.message
+          : err instanceof Error
+            ? err.message
+            : "Sign in failed";
+      setError(message);
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -33,33 +55,60 @@ export default function LoginPage() {
           </div>
           <CardTitle className="text-2xl">Document Studio</CardTitle>
           <CardDescription>
-            AI-powered document generation by Tame Dynamics
+            Sign in to create and manage documents
           </CardDescription>
         </CardHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="token" required>
-              Access Token
+            <Label htmlFor="email" required>
+              Email
             </Label>
             <Input
-              id="token"
-              type="password"
-              placeholder="Paste your access token"
-              value={token}
-              onChange={(e) => setToken(e.target.value)}
-              autoComplete="off"
+              id="email"
+              type="email"
+              placeholder="you@company.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+              disabled={loading}
             />
           </div>
 
-          <div className="rounded-lg border border-alert/30 bg-alert/5 px-4 py-3 text-sm text-graphite">
-            Temporary login for integration testing. This will be replaced with
-            Tame Platform authentication.
+          <div className="space-y-2">
+            <Label htmlFor="password" required>
+              Password
+            </Label>
+            <Input
+              id="password"
+              type="password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+              disabled={loading}
+            />
           </div>
+
+          {error && (
+            <div className="rounded-lg border border-error/30 bg-error/5 px-4 py-3 text-sm text-error">
+              {error}
+            </div>
+          )}
 
           <Button type="submit" className="w-full" loading={loading}>
             Sign in
           </Button>
+
+          <p className="text-center text-sm text-graphite/80">
+            Don&apos;t have an account?{" "}
+            <Link
+              to="/register"
+              className="font-medium text-electric hover:underline"
+            >
+              Create account
+            </Link>
+          </p>
         </form>
       </Card>
     </div>

@@ -56,6 +56,14 @@ export interface DocumentTypeSummary {
   priceCents: number;
   currency: string;
   icon: string;
+  category?: string;
+  categorySlug?: string;
+  active?: boolean;
+  productionStatus?: "draft" | "production" | "deprecated";
+  requiresLegalReview?: boolean;
+  disclaimer?: string;
+  isFree?: boolean;
+  sortOrder?: number;
   questions?: DocumentStudioQuestion[];
 }
 
